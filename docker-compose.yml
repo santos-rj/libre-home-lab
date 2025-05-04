@@ -1,0 +1,47 @@
+services:
+  casaos:
+    container_name: casaos
+    image: linuxserver/casaos:latest
+    restart: always
+    ports:
+      - "8080:80" # Porta para acessar o CasaOS
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - ./casaos/config:/config
+      - ./casaos/data:/data
+
+  portainer:
+    container_name: portainer
+    image: portainer/portainer-ce:latest
+    restart: always
+    ports:
+      - "9443:9443" # Porta HTTPS do Portainer
+      - "9000:9000" # Porta HTTP do Portainer
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - ./portainer/data:/data
+
+  nginx-proxy-manager:
+    container_name: nginx-proxy-manager
+    image: jc21/nginx-proxy-manager:latest
+    restart: always
+    ports:
+      - "80:80" # HTTP
+      - "81:81" # Painel de administração do NPM
+      - "443:443" # HTTPS
+    volumes:
+      - ./nginx/data:/data
+      - ./nginx/letsencrypt:/etc/letsencrypt
+
+  watchtower:
+    container_name: watchtower
+    image: containrrr/watchtower
+    restart: always
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    command: --cleanup --interval 86400 # Checar atualizações a cada 24h
+
+volumes:
+  casaos_data:
+  portainer_data:
+  nginx_data:
